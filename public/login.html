@@ -1,0 +1,47 @@
+<script>
+
+async function loginUser() {
+
+    const email = document.getElementById("email").value;
+
+    const password = document.getElementById("password").value;
+
+
+    const response = await fetch("/login", {
+
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+            email,
+            password
+        })
+
+    });
+
+
+    const data = await response.json();
+
+
+    if (data.user) {
+
+        localStorage.setItem("user", JSON.stringify(data.user));
+
+        alert(data.message);
+
+        window.location.href = "dashboard.html";
+
+    }
+
+    else {
+
+        alert(data.message);
+
+    }
+
+}
+
+</script>

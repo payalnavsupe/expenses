@@ -7,137 +7,196 @@ const app = express();
 
 app.use(express.json());
 
+app.use(express.static('public'));
+
 
 // =====================
 // ENV VARIABLES
 // =====================
+
 const supabaseUrl = process.env.SUPABASE_URL;
+
 const supabaseKey = process.env.SUPABASE_KEY;
-
-
-// Safety check (IMPORTANT)
-if (!supabaseUrl || !supabaseKey) {
-    throw new Error("Missing SUPABASE_URL or SUPABASE_KEY in .env file");
-}
 
 
 // =====================
 // SUPABASE CLIENT
 // =====================
+
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 
 // =====================
 // HOME ROUTE
 // =====================
+
 app.get('/', (req, res) => {
-    res.json({
-        message: 'Expense Tracker API Running'
-    });
+
+    res.sendFile(__dirname + '/public/login.html');
+
 });
 
 
 // =====================
-// GET ALL EXPENSES
+// REGISTER API
 // =====================
+
+app.post('/register', async (req, res) => {
+
+    const { username, email, password } = req.body;
+
+    const { data, error } = await supabase
+        .from('users')
+        .insert([
+            {
+                username,
+                email,
+                password
+            }
+        ])
+        .select();
+
+    if (error) {
+
+        return res.status(500).json({
+            error: error.message
+        });
+
+    }
+
+    res.json({
+        message: "Registration Successful",
+        data
+    });
+
+});
+
+
+// =====================
+// LOGIN API
+// =====================
+
+app.post('/login', async (req, res) => {
+
+    const { email, password } = req.body;
+
+    const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('email', email)
+        .eq('password', password);
+
+    if (error) {
+
+        return res.status(500).json({
+            error: error.message
+        });
+
+    }
+
+    if (data.length === 0) {
+
+        return res.status(401).json({
+            message: "Invalid Email or Password"
+        });
+
+    }
+
+    res.json({
+        message: "Login Successful",
+        user: data[0]
+    });
+
+});
+
+
+// =====================
+// GET EXPENSES
+// =====================
+
 app.get('/expenses', async (req, res) => {
+
     const { data, error } = await supabase
         .from('expenses')
         .select('*');
 
     if (error) {
-        return res.status(500).json({ error: error.message });
+
+        return res.status(500).json({
+            error: error.message
+        });
+
     }
 
     res.json(data);
-});
 
-
-// =====================
-// GET SINGLE EXPENSE
-// =====================
-app.get('/expenses/:id', async (req, res) => {
-    const id = req.params.id;
-
-    const { data, error } = await supabase
-        .from('expenses')
-        .select('*')
-        .eq('id', id);
-
-    if (error) {
-        return res.status(500).json({ error: error.message });
-    }
-
-    res.json(data);
 });
 
 
 // =====================
 // ADD EXPENSE
 // =====================
+
 app.post('/expenses', async (req, res) => {
-    const { amount, category, note } = req.body;
+
+    const { amount, category, note, user_id } = req.body;
 
     const { data, error } = await supabase
         .from('expenses')
         .insert([
-            { amount, category, note }
+            {
+                amount,
+                category,
+                note,
+                user_id
+            }
         ])
         .select();
 
     if (error) {
-        return res.status(500).json({ error: error.message });
+
+        return res.status(500).json({
+            error: error.message
+        });
+
     }
 
     res.json(data);
-});
 
-
-// =====================
-// UPDATE EXPENSE
-// =====================
-app.put('/expenses/:id', async (req, res) => {
-    const id = req.params.id;
-    const { amount, category, note } = req.body;
-
-    const { data, error } = await supabase
-        .from('expenses')
-        .update({ amount, category, note })
-        .eq('id', id)
-        .select();
-
-    if (error) {
-        return res.status(500).json({ error: error.message });
-    }
-
-    res.json(data);
 });
 
 
 // =====================
 // DELETE EXPENSE
 // =====================
+
 app.delete('/expenses/:id', async (req, res) => {
+
     const id = req.params.id;
 
     const { data, error } = await supabase
         .from('expenses')
         .delete()
-        .eq('id', id)
-        .select();
+        .eq('id', id);
 
     if (error) {
-        return res.status(500).json({ error: error.message });
+
+        return res.status(500).json({
+            error: error.message
+        });
+
     }
 
     res.json({
-        message: 'Expense deleted successfully',
+        message: "Expense Deleted",
         data
     });
+
 });
 
 
 // =====================
-// START SERVER
+// EXPORT APP FOR VERCEL
 // =====================
+
 module.exports = app;
