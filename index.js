@@ -31,7 +31,7 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 app.get("/", (req, res) => {
 
-    res.sendFile(path.join(__dirname, "public", "login.html"));
+    res.sendFile(path.join(__dirname, "public", "register.html"));
 
 });
 
