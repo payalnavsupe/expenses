@@ -9,8 +9,18 @@ const app = express();
 app.use(express.json());
 app.use(express.static("public"));
 
+
+// =====================
+// ENV VARIABLES
+// =====================
+
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
+
+
+// =====================
+// SUPABASE CLIENT
+// =====================
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
@@ -20,7 +30,9 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 // =====================
 
 app.get("/", (req, res) => {
+
     res.sendFile(path.join(__dirname, "public", "login.html"));
+
 });
 
 
@@ -98,7 +110,7 @@ app.post("/login", async (req, res) => {
 
 
 // =====================
-// GET EXPENSES
+// GET ALL EXPENSES
 // =====================
 
 app.get("/expenses", async (req, res) => {
@@ -106,6 +118,33 @@ app.get("/expenses", async (req, res) => {
     const { data, error } = await supabase
         .from("expenses")
         .select("*");
+
+    if (error) {
+
+        return res.status(500).json({
+            error: error.message
+        });
+
+    }
+
+    res.json(data);
+
+});
+
+
+// =====================
+// GET SINGLE EXPENSE
+// =====================
+
+app.get("/expenses/:id", async (req, res) => {
+
+    const id = req.params.id;
+
+    const { data, error } = await supabase
+        .from("expenses")
+        .select("*")
+        .eq("id", id)
+        .single();
 
     if (error) {
 
@@ -181,6 +220,10 @@ app.delete("/expenses/:id", async (req, res) => {
 
 });
 
+
+// =====================
+// SERVER
+// =====================
 
 const PORT = process.env.PORT || 3000;
 
