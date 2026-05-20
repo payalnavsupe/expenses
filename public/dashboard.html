@@ -16,8 +16,6 @@
 <body class="bg-light">
 
 
-<!-- NAVBAR -->
-
 <nav class="navbar navbar-dark bg-dark px-4">
 
     <a class="navbar-brand">
@@ -28,7 +26,7 @@
 
         <span class="text-white" id="welcomeUser"></span>
 
-        <button 
+        <button
             class="btn btn-danger"
             onclick="logoutUser()"
         >
@@ -40,11 +38,7 @@
 </nav>
 
 
-
 <div class="container mt-5">
-
-
-    <!-- DASHBOARD CARDS -->
 
     <div class="row mb-4">
 
@@ -54,9 +48,7 @@
 
                 <h5>Total Expenses</h5>
 
-                <h2 id="totalExpenses">
-                    ₹0
-                </h2>
+                <h2 id="totalExpenses">₹0</h2>
 
             </div>
 
@@ -69,9 +61,7 @@
 
                 <h5>Total Categories</h5>
 
-                <h2 id="totalCategories">
-                    0
-                </h2>
+                <h2 id="totalCategories">0</h2>
 
             </div>
 
@@ -84,9 +74,7 @@
 
                 <h5>This Month</h5>
 
-                <h2 id="monthlyExpenses">
-                    ₹0
-                </h2>
+                <h2 id="monthlyExpenses">₹0</h2>
 
             </div>
 
@@ -95,14 +83,9 @@
     </div>
 
 
-
-    <!-- ADD EXPENSE -->
-
     <div class="card shadow p-4 mb-5">
 
-        <h3 class="mb-4">
-            Add Expense
-        </h3>
+        <h3 class="mb-4">Add Expense</h3>
 
         <div class="row">
 
@@ -158,14 +141,9 @@
     </div>
 
 
-
-    <!-- EXPENSE TABLE -->
-
     <div class="card shadow p-4">
 
-        <h3 class="mb-4">
-            Expense List
-        </h3>
+        <h3 class="mb-4">Expense List</h3>
 
         <table class="table table-hover">
 
@@ -184,9 +162,7 @@
 
             </thead>
 
-            <tbody id="expenseTableBody">
-
-            </tbody>
+            <tbody id="expenseTableBody"></tbody>
 
         </table>
 
@@ -195,11 +171,9 @@
 </div>
 
 
-
 <script>
 
 const user = JSON.parse(localStorage.getItem("user"));
-
 
 if (!user) {
 
@@ -215,7 +189,7 @@ document.getElementById("welcomeUser").innerHTML =
 
 async function loadExpenses() {
 
-    const response = await fetch("http://localhost:3000/expenses");
+    const response = await fetch("/expenses");
 
     const expenses = await response.json();
 
@@ -243,7 +217,6 @@ async function loadExpenses() {
     userExpenses.forEach(expense => {
 
         total += Number(expense.amount);
-
 
         const expenseDate = new Date(expense.created_at);
 
@@ -276,9 +249,7 @@ async function loadExpenses() {
 
                 <td>${expense.note}</td>
 
-                <td>
-                    ${expenseDate.toLocaleDateString()}
-                </td>
+                <td>${expenseDate.toLocaleDateString()}</td>
 
                 <td>
 
@@ -320,7 +291,7 @@ async function addExpense() {
     const note = document.getElementById("note").value;
 
 
-    const response = await fetch("http://localhost:3000/expenses", {
+    await fetch("/expenses", {
 
         method: "POST",
 
@@ -340,10 +311,7 @@ async function addExpense() {
     });
 
 
-    const data = await response.json();
-
     alert("Expense Added Successfully");
-
 
     loadExpenses();
 
@@ -360,7 +328,7 @@ async function addExpense() {
 
 async function deleteExpense(id) {
 
-    await fetch(`http://localhost:3000/expenses/${id}`, {
+    await fetch(`/expenses/${id}`, {
 
         method: "DELETE"
 
@@ -382,7 +350,6 @@ function logoutUser() {
     window.location.href = "login.html";
 
 }
-
 
 
 loadExpenses();

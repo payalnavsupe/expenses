@@ -1,27 +1,16 @@
 require("dotenv").config();
 
-const express = require('express');
-const { createClient } = require('@supabase/supabase-js');
+const express = require("express");
+const path = require("path");
+const { createClient } = require("@supabase/supabase-js");
 
 const app = express();
 
 app.use(express.json());
-
-app.use(express.static('public'));
-
-
-// =====================
-// ENV VARIABLES
-// =====================
+app.use(express.static("public"));
 
 const supabaseUrl = process.env.SUPABASE_URL;
-
 const supabaseKey = process.env.SUPABASE_KEY;
-
-
-// =====================
-// SUPABASE CLIENT
-// =====================
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
@@ -30,10 +19,8 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 // HOME ROUTE
 // =====================
 
-app.get('/', (req, res) => {
-
-    res.sendFile(__dirname + '/public/login.html');
-
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "login.html"));
 });
 
 
@@ -41,12 +28,12 @@ app.get('/', (req, res) => {
 // REGISTER API
 // =====================
 
-app.post('/register', async (req, res) => {
+app.post("/register", async (req, res) => {
 
     const { username, email, password } = req.body;
 
     const { data, error } = await supabase
-        .from('users')
+        .from("users")
         .insert([
             {
                 username,
@@ -76,15 +63,15 @@ app.post('/register', async (req, res) => {
 // LOGIN API
 // =====================
 
-app.post('/login', async (req, res) => {
+app.post("/login", async (req, res) => {
 
     const { email, password } = req.body;
 
     const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('email', email)
-        .eq('password', password);
+        .from("users")
+        .select("*")
+        .eq("email", email)
+        .eq("password", password);
 
     if (error) {
 
@@ -114,11 +101,11 @@ app.post('/login', async (req, res) => {
 // GET EXPENSES
 // =====================
 
-app.get('/expenses', async (req, res) => {
+app.get("/expenses", async (req, res) => {
 
     const { data, error } = await supabase
-        .from('expenses')
-        .select('*');
+        .from("expenses")
+        .select("*");
 
     if (error) {
 
@@ -137,12 +124,12 @@ app.get('/expenses', async (req, res) => {
 // ADD EXPENSE
 // =====================
 
-app.post('/expenses', async (req, res) => {
+app.post("/expenses", async (req, res) => {
 
     const { amount, category, note, user_id } = req.body;
 
     const { data, error } = await supabase
-        .from('expenses')
+        .from("expenses")
         .insert([
             {
                 amount,
@@ -170,14 +157,14 @@ app.post('/expenses', async (req, res) => {
 // DELETE EXPENSE
 // =====================
 
-app.delete('/expenses/:id', async (req, res) => {
+app.delete("/expenses/:id", async (req, res) => {
 
     const id = req.params.id;
 
     const { data, error } = await supabase
-        .from('expenses')
+        .from("expenses")
         .delete()
-        .eq('id', id);
+        .eq("id", id);
 
     if (error) {
 
@@ -194,10 +181,6 @@ app.delete('/expenses/:id', async (req, res) => {
 
 });
 
-
-// =====================
-// EXPORT APP FOR VERCEL
-// =====================
 
 const PORT = process.env.PORT || 3000;
 
